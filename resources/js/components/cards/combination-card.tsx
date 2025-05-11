@@ -1,12 +1,21 @@
 import { CombinationEntity } from "@/entities/combination";
-import { SearchCheckIcon, SearchIcon, TableIcon } from "lucide-react";
+import {
+  ClockIcon,
+  SearchCheckIcon,
+  SearchIcon,
+  TableIcon,
+} from "lucide-react";
 import dayjs from "dayjs";
 
 type CombinationCardProps = {
+  showExecutionTime?: boolean;
   data: CombinationEntity;
 };
 
-export const CombinationCard = ({ data }: CombinationCardProps) => {
+export const CombinationCard = ({
+  data,
+  showExecutionTime,
+}: CombinationCardProps) => {
   return (
     <div className="bg-white border py-3 px-4 rounded-md flex flex-col sm:flex-row  justify-between gap-4 sm:items-center">
       <h1 className="text-base flex">
@@ -32,6 +41,17 @@ export const CombinationCard = ({ data }: CombinationCardProps) => {
             {data?.combinationResultCount || "-"}
           </span>
         </div>
+
+        {showExecutionTime && (
+          <div className="py-1 px-2 text-sm border rounded-md flex items-center gap-2">
+            <ClockIcon className="size-4 text-gray-500" />
+            <span className="tabular-nums">
+              {data?.executionTime !== undefined
+                ? `${data.executionTime} ms`
+                : "-"}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

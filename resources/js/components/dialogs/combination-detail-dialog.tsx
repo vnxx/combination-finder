@@ -69,7 +69,7 @@ const CombinationDetailDialog = forwardRef<CombinationDetailDialogHandler>(
 
           <div className="flex flex-col h-full overflow-hidden">
             <div className="flex flex-col gap-8 h-full overflow-hidden">
-              <CombinationCard data={state.detail} />
+              <CombinationCard data={state.detail} showExecutionTime />
 
               <div className="flex flex-col gap-2">
                 <h2 className="font-medium">
