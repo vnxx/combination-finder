@@ -6,6 +6,7 @@
   <title>Error {{.Code}}</title>
 </head>
 <body>
+  404
   {{.Message}}
 </body>
 </html>
