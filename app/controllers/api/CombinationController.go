@@ -1,6 +1,8 @@
 package api
 
 import (
+	"time"
+
 	"bykevin.work/tool/combination-finder/app/service/combination_service"
 	"github.com/gofiber/fiber/v2"
 	support "github.com/refiber/framework/support"
@@ -29,10 +31,15 @@ func (ctr *combinationController) Create(s support.Refiber, c *fiber.Ctx) error 
 		})
 	}
 
+	startTime := time.Now()
 	result := combination_service.GetCombinationResult(input.Target, input.Numbers)
+	executionTime := time.Since(startTime).Milliseconds()
 
 	return c.JSON(fiber.Map{
 		"message": "success",
-		"data":    result,
+		"data": fiber.Map{
+			"executionTime": executionTime,
+			"result":        result,
+		},
 	})
 }
