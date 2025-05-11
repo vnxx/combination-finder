@@ -1,8 +1,8 @@
 import { Container } from "@/components/container";
 import { Form } from "./components/form";
 import { Result } from "./components/result";
-import { Button } from "@/components/ui/button";
-import { GithubIcon } from "lucide-react";
+/* import { Button } from "@/components/ui/button"; */
+/* import { GithubIcon } from "lucide-react"; */
 import Layout from "@/components/layout";
 
 export default function HomePage() {
@@ -19,14 +19,14 @@ export default function HomePage() {
       <div>
         <Form />
 
-        <div className="flex justify-center mt-6">
-          <a href="#">
-            <Button variant="link" className="text-gray-600">
-              <GithubIcon className="w-5 h-5" />
-              Open source
-            </Button>
-          </a>
-        </div>
+        {/* <div className="flex justify-center mt-6"> */}
+        {/*   <a href="#"> */}
+        {/*     <Button variant="link" className="text-gray-800"> */}
+        {/*       <GithubIcon className="w-5 h-5" /> */}
+        {/*       Open source */}
+        {/*     </Button> */}
+        {/*   </a> */}
+        {/* </div> */}
       </div>
 
       <Result />
