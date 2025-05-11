@@ -1,6 +1,6 @@
 module bykevin.work/tool/combination-finder
 
-go 1.20
+go 1.22.2
 
 require (
 	github.com/gofiber/storage/badger/v2 v2.0.0

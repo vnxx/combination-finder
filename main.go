@@ -51,6 +51,7 @@ func main() {
 	})
 
 	app := app.New(support)
+	routes.RegisterAPI(router, app)
 	routes.RegisterWeb(router, app)
 
 	refiber.Use(func(c *fiber.Ctx) error {
