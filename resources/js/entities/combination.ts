@@ -15,6 +15,8 @@ export class CombinationEntity {
 
   combinationResult?: number[][];
 
+  combinationResultCount?: number;
+
   executionTime?: number; // milisecond
 
   constructor(data?: Partial<CombinationEntity>) {

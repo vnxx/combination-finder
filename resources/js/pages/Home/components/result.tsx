@@ -27,6 +27,7 @@ const Result = () => {
         <div className="flex flex-col gap-2">
           {combinations.map((combination) => (
             <div
+              key={combination.id}
               onClick={() => dialogRef.current?.onOpen(combination)}
               className="cursor-pointer"
             >

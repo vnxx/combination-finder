@@ -14,6 +14,14 @@ const example = {
     "50, 50, 40, 20, 10, 5, 5, 45.5, 54.5, 20.33, 79.67, 22.11, 33.33, 44.56",
 };
 
+type APIResponse = {
+  message: string;
+  data: {
+    executionTime: number;
+    result: number[][];
+  };
+};
+
 const Form = () => {
   const [form, setForm] = useState({
     target: example.target,
@@ -113,6 +121,8 @@ const Form = () => {
 
     const now = new Date();
 
+    const id = now.getTime();
+    const target = Number(form.target);
     const numberSeries = form.numbers
       .split(",")
       .filter((n) => n !== "")
@@ -120,20 +130,49 @@ const Form = () => {
       .filter((n) => !isNaN(n));
 
     const combinationEntity = new CombinationEntity({
-      id: now.getTime(),
-      target: Number(form.target),
+      id,
+      target,
       numberSeries,
       createdAt: now,
       operator: Operator.ADDITION,
     });
 
+    localStorage.setItem("combination-id", id.toString());
+
     let success = false;
 
     try {
+      const result = await fetch("/api/v1/combination", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          target,
+          numbers: numberSeries,
+        }),
+      });
+
+      if (!result.ok) {
+        throw new Error("Something went wrong");
+      } else {
+        const response: APIResponse = await result.json();
+        if (response.message !== "success") {
+          throw new Error("Something went wrong");
+        }
+
+        combinationEntity.combinationResultCount = response.data.result.length;
+        combinationEntity.executionTime = response.data.executionTime;
+        combinationEntity.combinationResult = response.data.result.sort(
+          (a, b) => a.length - b.length
+        );
+      }
+
       await main_db.combinations.add(combinationEntity);
+
       success = true;
     } catch (e) {
-      toast.error("Something went wrong");
+      toast.error("Something went wrong, please try again later");
     }
 
     setForm((prev) => ({ ...prev, submitting: false }));
@@ -141,6 +180,8 @@ const Form = () => {
     if (!success) {
       return;
     }
+
+    toast.success("Success!");
 
     onReset();
   };
@@ -181,7 +222,11 @@ const Form = () => {
       />
 
       <div className="flex flex-col gap-2">
-        <Button type="submit" disabled={!isFormValid || form.submitting}>
+        <Button
+          type="submit"
+          loading={form.submitting}
+          disabled={!isFormValid || form.submitting}
+        >
           Find Now!
         </Button>
 

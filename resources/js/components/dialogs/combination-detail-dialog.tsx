@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CombinationEntity } from "@/entities/combination";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { CombinationCard } from "../cards/combination-card";
 import { main_db } from "@/services/main_db";
@@ -53,6 +53,11 @@ const CombinationDetailDialog = forwardRef<CombinationDetailDialogHandler>(
       }, 100);
     };
 
+    const result = useMemo(() => {
+      if (!state.detail) return [];
+      return (state.detail.combinationResult || []).slice(0, 20);
+    }, [state.detail]);
+
     if (!state.detail) return null;
 
     return (
@@ -72,42 +77,47 @@ const CombinationDetailDialog = forwardRef<CombinationDetailDialogHandler>(
                 </h2>
 
                 <div className="flex flex-wrap gap-1 max-h-[300px] overflow-y-auto">
-                  {state.detail.numberSeries?.map((n) => (
-                    <NumberBox key={n} data={n} />
+                  {state.detail.numberSeries?.map((n, i) => (
+                    <NumberBox key={i} data={n} />
                   ))}
                 </div>
               </div>
 
-              <div className="flex-1 overflow-hidden">
-                <div className="flex flex-col gap-4 h-full">
-                  <h2 className="font-medium flex-none">
-                    Combination result (
-                    {state.detail.combinationResult?.length || "-"})
-                  </h2>
+              {result.length > 0 && (
+                <div className="flex-1 overflow-hidden">
+                  <div className="flex flex-col gap-4 h-full">
+                    <h2 className="font-medium flex-none">
+                      Combination result ({state.detail?.combinationResultCount}
+                      )
+                    </h2>
 
-                  <div className="flex flex-col h-full gap-2 overflow-auto">
-                    {Array.from({ length: 30 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="p-3 border group rounded-md hover:bg-gray-50 transition-colors flex flex-col gap-2"
-                      >
-                        <div className="flex gap-2 items-center">
-                          <div className="text-xs group-hover:bg-black group-hover:text-white tabular-nums bg-gray-50 rounded-full group-hover:border-black border px-2 transition-colors">
-                            {i + 1}
-                          </div>{" "}
-                          ~ <div className="tabular-nums text-xs">100</div>
-                        </div>
+                    <div className="flex flex-col h-full gap-2 overflow-auto">
+                      {result.map((item, i) => (
+                        <div
+                          key={i}
+                          className="p-3 border group rounded-md hover:bg-gray-50 transition-colors flex flex-col gap-2"
+                        >
+                          <div className="flex gap-2 items-center">
+                            <div className="text-xs group-hover:bg-black group-hover:text-white tabular-nums bg-gray-50 rounded-full group-hover:border-black border px-2 transition-colors">
+                              {i + 1}
+                            </div>{" "}
+                            ~{" "}
+                            <div className="tabular-nums text-xs">
+                              {item.length}
+                            </div>
+                          </div>
 
-                        <div className="flex flex-wrap gap-1">
-                          {(state.detail?.numberSeries || []).map((n) => (
-                            <NumberBox key={n} data={n} />
-                          ))}
+                          <div className="flex flex-wrap gap-1">
+                            {item.map((n, i) => (
+                              <NumberBox key={i} data={n} />
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

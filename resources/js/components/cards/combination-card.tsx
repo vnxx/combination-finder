@@ -29,7 +29,7 @@ export const CombinationCard = ({ data }: CombinationCardProps) => {
         <div className="py-1 px-2 text-sm border rounded-md flex items-center gap-2">
           <SearchCheckIcon className="size-4 text-gray-500" />
           <span className="tabular-nums">
-            {data.combinationResult?.length || "-"}
+            {data?.combinationResultCount || "-"}
           </span>
         </div>
       </div>
