@@ -1,5 +1,10 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @import "tw-animate-css";
+
+body {
+  @apply bg-gray-50;
+}
+
 /*
   ---break---
 */
@@ -149,3 +154,4 @@
     @apply bg-background text-foreground;
   }
 }
+

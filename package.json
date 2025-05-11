@@ -12,16 +12,26 @@
   },
   "dependencies": {
     "@inertiajs/react": "^2.0.9",
+    "@radix-ui/react-checkbox": "^1.3.1",
     "@radix-ui/react-slot": "^1.2.2",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.12",
     "@tailwindcss/vite": "^4.1.6",
+    "add": "^2.0.6",
     "class-variance-authority": "^0.7.1",
     "core-js": "^3.38.0",
+    "dayjs": "^1.11.13",
+    "dexie": "^4.0.11",
+    "dexie-react-hooks": "^1.1.7",
     "lucide-react": "^0.509.0",
+    "next-themes": "^0.4.6",
+    "npx": "^10.2.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "refiber-vite-plugin": "^1.0.0"
+    "refiber-vite-plugin": "^1.0.0",
+    "shadcn": "^2.5.0",
+    "sonner": "^2.0.3",
+    "toast": "^0.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.6",

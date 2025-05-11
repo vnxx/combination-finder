@@ -15,12 +15,4 @@ func RegisterWeb(r router.RouterInterface, app *app.App) {
 	route := r.Group("/", m.SharedWeb)
 
 	route.Get("/", controller.Index)
-	route.Get("/about", controller.About)
-
-	profile := route.Group("/profile", m.AuthWeb)
-	profile.Get("/", controller.Profile)
-
-	route.Get("/login", controller.Login, m.Guest)
-	route.Post("/login", controller.Auth)
-	route.Post("/logout", controller.Logout)
 }
