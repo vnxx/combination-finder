@@ -18,16 +18,25 @@ type combinationController struct{ apiController }
 
 func (ctr *combinationController) Create(s support.Refiber, c *fiber.Ctx) error {
 	type Input struct {
-		Target  float64   `validate:"required" json:"target"`
-		Numbers []float64 `validate:"required" json:"numbers"`
+		Target  float64   `validate:"required,numeric" json:"target"`
+		Numbers []float64 `validate:"required,min=1,dive,numeric" json:"numbers"`
 	}
 	input := new(Input)
 
 	c.BodyParser(input)
 	validation := s.Validation(c)
 	if err := validation.Validate(input); err != nil {
+		errorResult, err := validation.GetErrorResult()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Internal server error",
+				"error":   err.Error(),
+			})
+		}
+
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err.Error(),
+			"message": "Validation failed",
+			"error":   errorResult,
 		})
 	}
 
