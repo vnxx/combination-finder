@@ -1,10 +1,12 @@
 module bykevin.work/tool/combination-finder
 
-go 1.22.2
+go 1.24
+
+toolchain go1.24.0
 
 require (
 	github.com/gofiber/storage/badger/v2 v2.0.0
-	github.com/refiber/framework v0.2.3
+	github.com/refiber/framework v0.3.0-beta
 	github.com/rs/zerolog v1.32.0
 )
 
