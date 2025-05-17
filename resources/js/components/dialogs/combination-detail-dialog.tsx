@@ -18,10 +18,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CombinationEntity } from "@/entities/combination";
-import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 import { Button } from "../ui/button";
 import { CombinationCard } from "../cards/combination-card";
 import { main_db } from "@/services/main_db";
+import { ClipboardCopy, ClipboardCopyIcon } from "lucide-react";
+import { toast } from "sonner";
+import { isArrayMoreThan } from "@/lib/utils";
 
 export type CombinationDetailDialogHandler = {
   onOpen: (detail: CombinationEntity) => void;
@@ -58,6 +67,25 @@ const CombinationDetailDialog = forwardRef<CombinationDetailDialogHandler>(
       return (state.detail.combinationResult || []).slice(0, 20);
     }, [state.detail]);
 
+    const copyToClipboard = (text: string) => {
+      navigator.clipboard.writeText(text);
+
+      toast.success("Copied to clipboard");
+    };
+
+    const stringNumberSeries = useMemo(() => {
+      if (!state.detail?.numberSeries) return "";
+      return state.detail.numberSeries?.join(", ");
+    }, [state.detail]);
+
+    const getStringCombinationResult = useCallback(
+      (index: number): string => {
+        if (!state.detail?.combinationResult) return "";
+        return state.detail.combinationResult?.[index]?.join(", ") || "";
+      },
+      [state.detail]
+    );
+
     if (!state.detail) return null;
 
     return (
@@ -72,11 +100,24 @@ const CombinationDetailDialog = forwardRef<CombinationDetailDialogHandler>(
               <CombinationCard data={state.detail} showExecutionTime />
 
               <div className="flex flex-col gap-2">
-                <h2 className="font-medium">
-                  Numbere series ({state.detail.numberSeries?.length})
-                </h2>
+                <div className="flex gap-2 items-center">
+                  <h2 className="font-medium">
+                    Numbere series ({state.detail.numberSeries?.length})
+                  </h2>
 
-                <div className="flex flex-wrap gap-1 max-h-[300px] overflow-y-auto">
+                  {isArrayMoreThan(state.detail.numberSeries, 0) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="size-8"
+                      onClick={() => copyToClipboard(stringNumberSeries)}
+                    >
+                      <ClipboardCopyIcon className="size-4 text-gray-600" />
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1 max-h-[250px] overflow-y-auto">
                   {state.detail.numberSeries?.map((n, i) => (
                     <NumberBox key={i} data={n} />
                   ))}
@@ -105,6 +146,18 @@ const CombinationDetailDialog = forwardRef<CombinationDetailDialogHandler>(
                             <div className="tabular-nums text-xs">
                               {item.length}
                             </div>
+                            {isArrayMoreThan(item, 0) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="size-8"
+                                onClick={() =>
+                                  copyToClipboard(getStringCombinationResult(i))
+                                }
+                              >
+                                <ClipboardCopyIcon className="size-4 text-gray-600" />
+                              </Button>
+                            )}
                           </div>
 
                           <div className="flex flex-wrap gap-1">
