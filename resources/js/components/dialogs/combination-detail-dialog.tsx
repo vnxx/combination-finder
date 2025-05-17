@@ -28,7 +28,7 @@ import {
 import { Button } from "../ui/button";
 import { CombinationCard } from "../cards/combination-card";
 import { main_db } from "@/services/main_db";
-import { ClipboardCopy, ClipboardCopyIcon } from "lucide-react";
+import { ClipboardCopyIcon } from "lucide-react";
 import { toast } from "sonner";
 import { isArrayMoreThan } from "@/lib/utils";
 
