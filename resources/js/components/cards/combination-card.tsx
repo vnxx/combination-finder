@@ -6,6 +6,7 @@ import {
   TableIcon,
 } from "lucide-react";
 import dayjs from "dayjs";
+import { readableMilliseconds } from "@/lib/utils";
 
 type CombinationCardProps = {
   showExecutionTime?: boolean;
@@ -47,7 +48,7 @@ export const CombinationCard = ({
             <ClockIcon className="size-4 text-gray-500" />
             <span className="tabular-nums">
               {data?.executionTime !== undefined
-                ? `${data.executionTime} ms`
+                ? `${readableMilliseconds(data.executionTime)}`
                 : "-"}
             </span>
           </div>
