@@ -12,3 +12,9 @@ export function readableMilliseconds(milliseconds: number) {
   const seconds = (milliseconds / 1000).toFixed(1);
   return `${seconds}s`;
 }
+
+export function isArrayMoreThan(arr: any[] | undefined | null, length: number) {
+  if (!arr) return false;
+  if (arr.length <= length) return false;
+  return arr.length > length;
+}
