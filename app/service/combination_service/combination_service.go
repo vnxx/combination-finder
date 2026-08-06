@@ -1,11 +1,18 @@
 package combination_service
 
 import (
+	"math"
 	"sort"
+	"strconv"
+	"strings"
 	"sync"
 
 	"bykevin.work/tool/combination-finder/app/util"
 )
+
+// tolerance for the rounding error that piles up while summing float64, so a
+// series like 0.325 + 0.333 + 0.109 + 0.325 + 0.333 still matches a 1.425 target
+const epsilon = 1e-9
 
 func GetCombinationResult(search float64, input []float64) [][]float64 {
 	sortedInput := make([]float64, len(input))
@@ -18,95 +25,93 @@ func GetCombinationResult(search float64, input []float64) [][]float64 {
 	mu := sync.Mutex{}
 
 	foundNumberSeries := [][]float64{}
+	seen := map[string]bool{}
 
-	for indexToSkip, v := range uniqueInput {
+	for _, v := range uniqueInput {
 		wg.Add(1)
-		go func(v float64, indexToSkip int) {
+		go func(v float64) {
 			defer wg.Done()
 
-			sum := v
-			xDeret := []float64{v}
-			found := false
+			// a number can only be used as many times as it appears in the input,
+			// so the index this series starts from is off limits for the rest of it
+			pinnedIndex := sort.SearchFloat64s(sortedInput, v)
 
-			for pointer := range len(sortedInput) {
-				if pointer == indexToSkip {
-					continue
-				}
-
-				pointerValue := sortedInput[pointer]
-				sumWithPointerValue := sum + pointerValue
-				tempDeret := []float64{v, pointerValue}
-
-				if sumWithPointerValue > search {
-					continue
-				} else if sumWithPointerValue == search {
-					found = true
-					xDeret = tempDeret
-					break
-				}
-
-				wg2 := sync.WaitGroup{}
-
-				for pointer2 := range len(sortedInput) {
-					if pointer2 == pointer {
-						continue
-					}
-
-					pointer2Value := sortedInput[pointer2]
-					sumWithPointer2Value := sumWithPointerValue + pointer2Value
-					tempDeret2 := []float64{v, pointerValue, pointer2Value}
-
-					if sumWithPointer2Value > search {
-						continue
-					} else if sumWithPointer2Value == search {
-						found = true
-						xDeret = tempDeret2
-						break
-					}
-
-					expandedTempDeret2 := tempDeret2
-					expandedSumWithPointer2Value := sumWithPointer2Value
-
-					wg2.Add(1)
-
-					go func(pointer2 int, expandedTempDeret2 []float64, expandedSumWithPointer2Value float64) {
-						defer wg2.Done()
-
-						for pointer3 := range len(sortedInput) {
-							if pointer3 == pointer2 {
-								continue
-							}
-
-							pointer3Value := sortedInput[pointer3]
-
-							expandedTempDeret2 = append(expandedTempDeret2, pointer3Value)
-							expandedSumWithPointer2Value += pointer3Value
-
-							if expandedSumWithPointer2Value > search {
-								expandedTempDeret2 = tempDeret2
-								expandedSumWithPointer2Value = sumWithPointer2Value
-								continue
-							} else if expandedSumWithPointer2Value == search {
-								found = true
-								xDeret = expandedTempDeret2
-								break
-							}
-						}
-					}(pointer2, expandedTempDeret2, expandedSumWithPointer2Value)
-				}
-
-				wg2.Wait()
+			deret := []float64{v}
+			if !findSeries(search, v, 0, pinnedIndex, sortedInput, &deret) {
+				return
 			}
 
-			if found {
-				mu.Lock()
-				foundNumberSeries = append(foundNumberSeries, xDeret)
-				mu.Unlock()
+			key := getSeriesKey(deret)
+
+			mu.Lock()
+			defer mu.Unlock()
+
+			// two starting numbers can walk into the very same series
+			if seen[key] {
+				return
 			}
-		}(v, indexToSkip)
+
+			seen[key] = true
+			foundNumberSeries = append(foundNumberSeries, deret)
+		}(v)
 	}
 
 	wg.Wait()
 
 	return foundNumberSeries
+}
+
+// findSeries appends numbers of sortedInput[start:] to deret until it sums up to
+// search, and stops on the first series that matches. Indexes are only ever taken
+// in ascending order, so every combination is walked once and none is reused.
+func findSeries(search, sum float64, start, pinnedIndex int, sortedInput []float64, deret *[]float64) bool {
+	previousValue := math.NaN()
+
+	for pointer := start; pointer < len(sortedInput); pointer++ {
+		if pointer == pinnedIndex {
+			continue
+		}
+
+		pointerValue := sortedInput[pointer]
+
+		// duplicates of a value picked earlier on this step lead to the same series
+		if pointerValue == previousValue {
+			continue
+		}
+		previousValue = pointerValue
+
+		nextSum := sum + pointerValue
+
+		// sortedInput is ascending, so every number after this one overshoots too
+		if nextSum > search+epsilon {
+			break
+		}
+
+		*deret = append(*deret, pointerValue)
+
+		if math.Abs(nextSum-search) <= epsilon {
+			return true
+		}
+
+		if findSeries(search, nextSum, pointer+1, pinnedIndex, sortedInput, deret) {
+			return true
+		}
+
+		*deret = (*deret)[:len(*deret)-1]
+	}
+
+	return false
+}
+
+func getSeriesKey(series []float64) string {
+	sorted := make([]float64, len(series))
+	copy(sorted, series)
+	sort.Float64s(sorted)
+
+	parts := make([]string, len(sorted))
+	for i, v := range sorted {
+		parts[i] = strconv.FormatFloat(v, 'f', -1, 64)
+	}
+
+	return strings.Join(parts, ",")
 }
